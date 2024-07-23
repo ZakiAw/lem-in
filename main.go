@@ -28,11 +28,12 @@ func ParseFile(file string) {
 	split := strings.Split(string(open), "\n")
 	ant.AntNum, or = strconv.Atoi(split[0])
 	Err(or)
+	fmt.Println(ant.AntNum)
 }
 
-func Err(Error error) string {
+func Err(Error error) {
 	if Error != nil {
-		return "Error"
+		 fmt.Println(Error)
+		 os.Exit(0)
 	}
-	return ""
 }
