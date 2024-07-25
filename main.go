@@ -7,11 +7,23 @@ import (
 	"strings"
 )
 
+type Room struct {
+	Name  string
+	Jeran []*Room
+}
+type Farm struct {
+	Rooms  map[string]*Room
+	AntNum int
+	Start  Room
+	End    Room
+}
+type Ant struct{}
+
 var (
-	room  Room
-	start Start
-	end   End
-	ant   Ant
+	farm        Farm
+	mwjoodStart bool
+	mwjoodEnd   bool
+
 )
 
 func main() {
@@ -23,17 +35,44 @@ func main() {
 }
 
 func ParseFile(file string) {
+
 	open, or := os.ReadFile(file)
 	Err(or)
 	split := strings.Split(string(open), "\n")
-	ant.AntNum, or = strconv.Atoi(split[0])
+	farm.AntNum, or = strconv.Atoi(split[0])
 	Err(or)
-	fmt.Println(ant.AntNum)
+
+	for _, line := range split[1:] {
+		if line == "" {
+			continue
+		}
+		f := strings.Fields(line)
+
+		if line == "##start" {
+			mwjoodStart = true
+			continue
+		}
+		if line == "##end" {
+			mwjoodEnd = true
+			continue
+		}
+		if mwjoodStart {
+			farm.Start.Name = f[0]
+			fmt.Println(farm.Start.Name)
+			mwjoodStart = false
+		}
+		if mwjoodEnd {
+			farm.End.Name = f[0]
+			fmt.Println(farm.End.Name)
+			mwjoodEnd = false
+		}
+
+	}
 }
 
 func Err(Error error) {
 	if Error != nil {
-		 fmt.Println(Error)
-		 os.Exit(0)
+		fmt.Println(Error)
+		os.Exit(0)
 	}
 }
