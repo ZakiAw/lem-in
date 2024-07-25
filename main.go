@@ -17,7 +17,9 @@ type Farm struct {
 	Start  Room
 	End    Room
 }
-type Ant struct{}
+type Ant struct{
+	
+}
 
 var (
 	farm        Farm
@@ -35,7 +37,6 @@ func main() {
 }
 
 func ParseFile(file string) {
-
 	open, or := os.ReadFile(file)
 	Err(or)
 	split := strings.Split(string(open), "\n")
@@ -66,7 +67,9 @@ func ParseFile(file string) {
 			fmt.Println(farm.End.Name)
 			mwjoodEnd = false
 		}
-
+		if strings.Contains(line, "-") {
+			
+		}
 	}
 }
 
