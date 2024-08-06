@@ -23,7 +23,7 @@ var (
 	farm        Farm
 	mwjoodStart bool
 	mwjoodEnd   bool
-	path		[]string
+	path        []string
 )
 
 func main() {
@@ -102,14 +102,13 @@ func mapmaker(from, to string) {
 }
 
 func FindPath(start, end string) []string {
-	
 	path = append(path, start)
 	Start := farm.Rooms[start]
 	for _, i := range Start.Jeran {
 		visited := false
-		for _,o := range path {
+		for _, o := range path {
 			if i.Name == o {
-		visited = true
+				visited = true
 			}
 		}
 		if visited {
@@ -118,7 +117,7 @@ func FindPath(start, end string) []string {
 		if i.Name != end || i.Name != start {
 			FindPath(i.Name, end)
 		}
-	}
+	  }
 	return path
 }
 
