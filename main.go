@@ -23,6 +23,7 @@ var (
 	farm        Farm
 	mwjoodStart bool
 	mwjoodEnd   bool
+	path		[]string
 )
 
 func main() {
@@ -73,10 +74,9 @@ func ParseFile(file string) {
 			from := split[0]
 			to := split[1]
 			mapmaker(from, to)
-			fmt.Print(from + " ")
-			fmt.Println(to)
 		}
 	}
+	fmt.Print(FindPath(farm.Start.Name, farm.End.Name))
 }
 
 func Err(Error error) {
@@ -99,4 +99,35 @@ func mapmaker(from, to string) {
 	}
 	fromNode.Jeran = append(fromNode.Jeran, toNode)
 	toNode.Jeran = append(toNode.Jeran, fromNode)
+}
+
+func FindPath(start, end string) []string {
+	
+	path = append(path, start)
+	Start := farm.Rooms[start]
+	for _, i := range Start.Jeran {
+		visited := false
+		for _,o := range path {
+			if i.Name == o {
+		visited = true
+			}
+		}
+		if visited {
+			continue
+		}
+		if i.Name != end || i.Name != start {
+			FindPath(i.Name, end)
+		}
+	}
+	return path
+}
+
+func PrintFarm() {
+	for _, room := range farm.Rooms {
+		fmt.Printf("Room %s has neighbors: ", room.Name)
+		for _, neighbor := range room.Jeran {
+			fmt.Printf("%s ", neighbor.Name)
+		}
+		fmt.Println()
+	}
 }
