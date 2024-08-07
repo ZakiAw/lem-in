@@ -23,7 +23,8 @@ var (
 	farm        Farm
 	mwjoodStart bool
 	mwjoodEnd   bool
-	path        []string
+	allPaths    [][]string
+	// path        []string
 )
 
 func main() {
@@ -32,6 +33,10 @@ func main() {
 		return
 	}
 	ParseFile(os.Args[1])
+	Duffs(farm.Start.Name, farm.End.Name, []string{}, &allPaths)
+	result := Conflicts()
+	PrintAllPaths()
+	fmt.Println(result)
 }
 
 func ParseFile(file string) {
@@ -76,7 +81,6 @@ func ParseFile(file string) {
 			mapmaker(from, to)
 		}
 	}
-	fmt.Print(FindPath(farm.Start.Name, farm.End.Name))
 }
 
 func Err(Error error) {
@@ -101,24 +105,34 @@ func mapmaker(from, to string) {
 	toNode.Jeran = append(toNode.Jeran, fromNode)
 }
 
-func FindPath(start, end string) []string {
+func Duffs(start, end string, path []string, allPaths *[][]string) {
 	path = append(path, start)
-	Start := farm.Rooms[start]
-	for _, i := range Start.Jeran {
+	if start == end {
+		pathCopy := make([]string, len(path))
+		copy(pathCopy, path)
+		*allPaths = append(*allPaths, pathCopy)
+		return
+	}
+
+	StartRoom := farm.Rooms[start]
+	for _, neighbor := range StartRoom.Jeran {
 		visited := false
-		for _, o := range path {
-			if i.Name == o {
+		for _, node := range path {
+			if neighbor.Name == node {
 				visited = true
+				break
 			}
 		}
-		if visited {
-			continue
+		if !visited {
+			Duffs(neighbor.Name, end, path, allPaths)
 		}
-		if i.Name != end || i.Name != start {
-			FindPath(i.Name, end)
-		}
-	  }
-	return path
+	}
+}
+
+func PrintAllPaths() {
+	for i, path := range allPaths {
+		fmt.Printf("Path %d: %v\n", i+1, path)
+	}
 }
 
 func PrintFarm() {
@@ -129,4 +143,44 @@ func PrintFarm() {
 		}
 		fmt.Println()
 	}
+}
+
+func Conflicts() [][]string {
+	var result [][]string
+	for index1, path1 := range allPaths[:len(allPaths)-1] {
+		var indexs []int
+		for index2, path2 := range allPaths[index1+1:] {
+			if Resolve(path1, path2) {
+				indexs = append(indexs, index2)
+			}
+		}
+		if indexs == nil {
+			result = append(result, path1)
+		} else {
+			indexs = append(indexs, index1)
+			result = append(result, MinLenght(indexs))
+		}
+	}
+	return result
+}
+
+func Resolve(path1, path2 []string) bool {
+	for _, room1 := range path1[1 : len(path1)-1] {
+		for _, room2 := range path2[1 : len(path1)-1] {
+			if room1 == room2 {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func MinLenght(indexs []int) []string {
+	min := allPaths[indexs[0]]
+	for _, index := range indexs[1:] {
+		if len(min) > len(allPaths[index]) {
+			min = allPaths[index]
+		}
+	}
+	return min
 }
