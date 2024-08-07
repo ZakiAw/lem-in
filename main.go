@@ -43,12 +43,13 @@ func ParseFile(file string) {
 	open, or := os.ReadFile(file)
 	Err(or)
 	split := strings.Split(string(open), "\n")
-	farm.AntNum, or = strconv.Atoi(split[0])
+	farm.AntNum, or = strconv.Atoi(strings.TrimSpace(split[0]))
 	Err(or)
 
 	farm.Rooms = make(map[string]*Room)
 
 	for _, line := range split[1:] {
+		line = strings.TrimSpace(line)
 		if line == "" {
 			continue
 		}
@@ -147,26 +148,33 @@ func PrintFarm() {
 
 func Conflicts() [][]string {
 	var result [][]string
-	for index1, path1 := range allPaths[:len(allPaths)-1] {
+	mapindexs := make(map[int]bool)
+	for index1, path1 := range allPaths {
 		var indexs []int
-		for index2, path2 := range allPaths[index1+1:] {
-			if Resolve(path1, path2) {
+		var found bool
+		for index2 := index1 + 1; index2 < len(allPaths); index2++ {
+			path2 := allPaths[index2]
+			if Resolve(path1, path2) && !mapindexs[index2] {
 				indexs = append(indexs, index2)
+				mapindexs[index2] = true
+				found = true
 			}
 		}
-		if indexs == nil {
+
+		if !found && !mapindexs[index1] {
 			result = append(result, path1)
-		} else {
+		} else if !mapindexs[index1] {
 			indexs = append(indexs, index1)
 			result = append(result, MinLenght(indexs))
 		}
+
 	}
 	return result
 }
 
 func Resolve(path1, path2 []string) bool {
 	for _, room1 := range path1[1 : len(path1)-1] {
-		for _, room2 := range path2[1 : len(path1)-1] {
+		for _, room2 := range path2[1 : len(path2)-1] {
 			if room1 == room2 {
 				return true
 			}
